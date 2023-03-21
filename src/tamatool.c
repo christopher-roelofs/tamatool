@@ -78,7 +78,7 @@
 
 #define REF_PIXEL_PADDING		1
 
-#define DEFAULT_PIXEL_STRIDE		10
+#define DEFAULT_PIXEL_STRIDE		14
 
 #define PIXEL_STRIDE_MIN		1
 #define PIXEL_STRIDE_MAX		30
@@ -145,7 +145,7 @@ static uint16_t shell_width, shell_height, bg_offset_x, bg_offset_y; // Offsets 
 static uint16_t bg_size, lcd_offset_x, lcd_offset_y, icon_dest_size, icon_offset_x, icon_offset_y, icon_stride_x, icon_stride_y, pixel_size; // Offsets are relative to the background (bg_offset_x, bg_offset_y)
 static uint16_t pixel_alpha_on, pixel_alpha_off, icon_alpha_on, icon_alpha_off;
 static uint16_t buttons_x, buttons_y, buttons_width, buttons_height;
-static bool_t shell_enable = 1;
+static bool_t shell_enable = 0;
 
 #if defined(__WIN32__)
 static LARGE_INTEGER counter_freq;
@@ -618,10 +618,21 @@ static bool_t sdl_init(void)
 		SDL_Quit();
 		return 1;
 	}
+	
+	SDL_DisplayMode current;
 
-	window = SDL_CreateWindow(APP_NAME, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (shell_enable ? shell_width : bg_size), (shell_enable ? shell_height : bg_size), SDL_WINDOW_SHOWN);
+    int should_be_zero = SDL_GetCurrentDisplayMode(0, &current);
+
+    if (should_be_zero != 0) {
+        hal_log(LOG_ERROR, "Failed to get display mode: %s\n", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+	window = SDL_CreateWindow(APP_NAME, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,  current.w,  current.h, SDL_WINDOW_SHOWN);
 
 	renderer =  SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+	SDL_RenderSetLogicalSize(renderer, (shell_enable ? shell_width : bg_size), (shell_enable ? shell_height : bg_size));
 
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 

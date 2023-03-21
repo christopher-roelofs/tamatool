@@ -48,18 +48,14 @@ static uint32_t find_next_slot(void)
 
 void state_find_next_name(char *path)
 {
-	sprintf(path, STATE_TEMPLATE, find_next_slot());
+	uint32_t i = 0;
+	sprintf(path, STATE_TEMPLATE,i);
 }
 
 void state_find_last_name(char *path)
 {
-	uint32_t num = find_next_slot();
-
-	if (num > 0) {
-		sprintf(path, STATE_TEMPLATE, num - 1);
-	} else {
-		path[0] = '\0';
-	}
+	uint32_t num = 0;
+	sprintf(path, STATE_TEMPLATE, num);
 }
 
 void state_save(char *path)
